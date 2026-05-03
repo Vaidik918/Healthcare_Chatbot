@@ -1,0 +1,6 @@
+.env
+venv/
+__pycache__/
+*.pyc
+*.jsonl
+reviews_final.csv

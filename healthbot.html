@@ -1,0 +1,1550 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HealthBot — Poonawalla Fincorp</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: #1e2d45;
+    --accent: #00d4aa;
+    --accent2: #0ea5e9;
+    --accent-glow: rgba(0,212,170,0.15);
+    --user-bubble: #0ea5e9;
+    --bot-bubble: #1a2236;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --red: #f43f5e;
+    --yellow: #fbbf24;
+    --green: #10b981;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 20% 20%, rgba(0,212,170,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(14,165,233,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  .header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    background: rgba(17,24,39,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 0 20px rgba(0,212,170,0.3);
+  }
+
+  .header-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .header-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .status-dot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .session-badge {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    background: var(--surface2);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .session-badge:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Chat area */
+  .chat-container {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 0;
+    scroll-behavior: smooth;
+  }
+
+  .chat-container::-webkit-scrollbar { width: 4px; }
+  .chat-container::-webkit-scrollbar-track { background: transparent; }
+  .chat-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .message-row {
+    display: flex;
+    padding: 6px 24px;
+    gap: 12px;
+    animation: fadeSlideIn 0.3s ease;
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message-row.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .avatar.bot {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    box-shadow: 0 0 12px rgba(0,212,170,0.2);
+  }
+
+  .avatar.user {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  }
+
+  .bubble-wrap { max-width: 72%; display: flex; flex-direction: column; gap: 4px; }
+  .message-row.user .bubble-wrap { align-items: flex-end; }
+
+  .bubble {
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  .bubble.bot {
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+    color: var(--text);
+  }
+
+  .bubble.user {
+    background: linear-gradient(135deg, #0ea5e9, #6366f1);
+    border-top-right-radius: 4px;
+    color: white;
+  }
+
+  /* Structured data cards */
+  .data-card {
+    margin-top: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 8px 14px;
+    background: var(--surface2);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cost-block {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cost-main {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .cost-loan {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .cost-loan span {
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  .hospital-list { padding: 8px 0; }
+
+  .hospital-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: background 0.15s;
+  }
+
+  .hospital-item:last-child { border-bottom: none; }
+  .hospital-item:hover { background: rgba(255,255,255,0.02); }
+
+  .hosp-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .hosp-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+  }
+
+  .tag.tier { background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.2); }
+  .tag.cost { background: rgba(0,212,170,0.1); color: var(--accent); border: 1px solid rgba(0,212,170,0.2); }
+  .tag.rating { background: rgba(251,191,36,0.1); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
+  .tag.dist { background: rgba(14,165,233,0.1); color: var(--accent2); border: 1px solid rgba(14,165,233,0.2); }
+  .tag.conf-high { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+  .tag.conf-med { background: rgba(251,191,36,0.1); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
+  .tag.conf-low { background: rgba(244,63,94,0.1); color: var(--red); border: 1px solid rgba(244,63,94,0.2); }
+
+  /* Health Advice Card */
+  .advice-card {
+    margin-top: 10px;
+    background: var(--surface);
+    border: 1px solid rgba(0,212,170,0.25);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,212,170,0.06);
+  }
+
+  .advice-header {
+    padding: 10px 14px;
+    background: linear-gradient(135deg, rgba(0,212,170,0.12), rgba(14,165,233,0.08));
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    border-bottom: 1px solid rgba(0,212,170,0.15);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .advice-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+
+  .doctor-rec {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+    background: rgba(14,165,233,0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(14,165,233,0.15);
+  }
+
+  .doctor-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent2);
+    letter-spacing: -0.3px;
+  }
+
+  .doctor-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .urgency-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .urgency-bar.emergency { background: rgba(244,63,94,0.12); color: var(--red); border: 1px solid rgba(244,63,94,0.25); }
+  .urgency-bar.urgent { background: rgba(251,191,36,0.12); color: var(--yellow); border: 1px solid rgba(251,191,36,0.25); }
+  .urgency-bar.soon { background: rgba(14,165,233,0.10); color: var(--accent2); border: 1px solid rgba(14,165,233,0.2); }
+  .urgency-bar.routine { background: rgba(16,185,129,0.10); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+
+  .advice-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .pill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .pill {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .pill.test { background: rgba(99,102,241,0.12); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.2); }
+  .pill.tip { background: rgba(16,185,129,0.10); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+
+  .red-flag-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .red-flag-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--red);
+    padding: 5px 8px;
+    background: rgba(244,63,94,0.07);
+    border-radius: 6px;
+    border-left: 2px solid var(--red);
+  }
+
+  .specialty-hosp-list { padding: 6px 0; }
+
+  .spec-hosp-item {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .spec-hosp-item:last-child { border-bottom: none; }
+  .spec-hosp-item:hover { background: rgba(255,255,255,0.02); }
+
+  .intent-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 6px;
+    background: rgba(0,212,170,0.08);
+    color: var(--accent);
+    border: 1px solid rgba(0,212,170,0.15);
+  }
+
+  .disclaimer {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    line-height: 1.5;
+  }
+
+  /* Typing indicator */
+  .typing-row { padding: 6px 24px; display: flex; gap: 12px; align-items: center; }
+
+  .typing-bubble {
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    border-top-left-radius: 4px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+
+  .typing-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    animation: typingBounce 1.2s infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* Welcome */
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .welcome-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 0 40px rgba(0,212,170,0.2);
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .welcome h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+
+  .welcome p {
+    font-size: 13px;
+    color: var(--text-muted);
+    max-width: 320px;
+    line-height: 1.6;
+  }
+
+  .quick-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  .chip {
+    padding: 7px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
+    transform: translateY(-1px);
+  }
+
+  /* Input area */
+  .input-area {
+    position: relative;
+    z-index: 10;
+    padding: 14px 20px;
+    background: rgba(17,24,39,0.97);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+  }
+
+  .input-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+  }
+
+  .input-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,212,170,0.08);
+  }
+
+  #messageInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 13.5px;
+    resize: none;
+    max-height: 120px;
+    line-height: 1.5;
+    min-height: 22px;
+  }
+
+  #messageInput::placeholder { color: var(--text-muted); }
+
+  .send-btn {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(0,212,170,0.2);
+  }
+
+  .send-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0,212,170,0.35); }
+  .send-btn:active { transform: scale(0.95); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .send-btn svg { width: 16px; height: 16px; fill: white; }
+
+  .input-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    padding: 0 2px;
+  }
+
+  .input-hint {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .new-chat-btn {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Sora', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .new-chat-btn:hover { color: var(--red); border-color: var(--red); }
+
+  .timestamp {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+  }
+  .message-row.user .timestamp { text-align: right; }
+
+  /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background: rgba(10,15,30,0.85);
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-content {
+    background: var(--surface);
+    margin: auto;
+    padding: 24px 20px 18px 20px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: var(--text);
+    font-size: 13px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    position: relative;
+  }
+  .close-modal {
+    position: absolute;
+    top: 10px;
+    right: 18px;
+    font-size: 18px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.2s;
+  }
+  .close-modal:hover { color: var(--accent); }
+  .modal pre {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+    overflow-x: auto;
+    margin-top: 10px;
+  }
+  .tag.green { background: rgba(39,174,96,0.18); color: #27ae60; border: 1px solid rgba(39,174,96,0.3); }
+  .tag.red   { background: rgba(231,76,60,0.15); color: #e74c3c; border: 1px solid rgba(231,76,60,0.3); }
+  .doctor-row { font-size: 12px; margin: 4px 0; padding: 5px 10px;
+                background: rgba(14,165,233,0.08); border-radius: 6px;
+                border-left: 2px solid var(--accent2); color: var(--text-dim); }
+  .match-quality { font-size: 12px; margin: 5px 0; font-weight: 500; }
+  .spec-hosp-item details summary { cursor: pointer; font-size: 12px;
+                                    color: var(--accent2); margin-top: 6px;
+                                    list-style: none; }
+  .spec-hosp-item details summary::before { content: '\25B6 '; font-size: 10px; }
+  .spec-hosp-item details[open] summary::before { content: '\25BC '; }
+  .spec-hosp-item details ul { margin: 5px 0 0 14px; font-size: 12px;
+                               color: var(--text-muted); line-height: 1.7; }
+  /* Doctor recommendation card */
+  .doc-rec-card { margin-top: 10px; background: var(--surface);
+                  border: 1px solid rgba(14,165,233,0.3); border-radius: 12px; overflow: hidden; }
+  .doc-rec-header { padding: 8px 14px; background: linear-gradient(135deg,rgba(14,165,233,0.12),rgba(99,102,241,0.08));
+                    font-size: 11px; font-weight: 700; color: var(--accent2);
+                    letter-spacing: 0.5px; text-transform: uppercase;
+                    font-family: 'JetBrains Mono', monospace;
+                    border-bottom: 1px solid rgba(14,165,233,0.2); }
+  .doc-rec-item { padding: 10px 14px; border-bottom: 1px solid var(--border);
+                  display: flex; flex-direction: column; gap: 4px; }
+  .doc-rec-item:last-child { border-bottom: none; }
+  .doc-rec-name { font-size: 13px; font-weight: 600; color: var(--accent2); }
+  .doc-rec-meta { font-size: 11px; color: var(--text-muted); }
+  .doc-conf { display: inline-block; font-size: 10px; padding: 2px 7px;
+              border-radius: 4px; font-family: 'JetBrains Mono', monospace; }
+  .doc-conf.high { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+  .doc-conf.medium { background: rgba(251,191,36,0.1); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
+  .doc-conf.low { background: rgba(244,63,94,0.1); color: var(--red); border: 1px solid rgba(244,63,94,0.2); }
+  .avoid-banner { background: rgba(244,63,94,0.12); border-left: 3px solid var(--red);
+                  padding: 7px 14px; font-size: 12px; color: var(--red); }
+  .icd-badge {
+    display: inline-block;
+    font-size: 10.5px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin-top: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.2px;
+  }
+  .age-severity-badge {
+    margin-top: 8px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #f59e0b;
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+  .gender-flag-note {
+    margin-top: 8px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+  /* ── Estimate context strip ─────────────────────────────────────────── */
+  .estimate-context-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(14,165,233,0.06);
+    border-bottom: 1px solid var(--border);
+    font-size: 10.5px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+  }
+  .ec-item { white-space: nowrap; }
+  .ec-sep  { color: var(--border); font-weight: 700; }
+
+  .budget-badge {
+    margin-top: 8px;
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.55;
+  }
+  .budget-within     { background: rgba(16,185,129,0.12); color: #6ee7b7;
+                       border: 0.5px solid rgba(16,185,129,0.35); }
+  .budget-borderline { background: rgba(251,191,36,0.10); color: #fcd34d;
+                       border: 0.5px solid rgba(251,191,36,0.35); }
+  .budget-over       { background: rgba(244,63,94,0.10);  color: #fca5a5;
+                       border: 0.5px solid rgba(244,63,94,0.35); }
+  .budget-filter-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin: 5px 0 8px;
+    padding: 4px 14px;
+    border-left: 2px solid var(--border);
+    font-style: italic;
+  }
+
+  /* ── CLINICAL PATHWAY CARD ──────────────────────────────────────────────── */
+  .pathway-card {
+    margin-top: 10px;
+    background: var(--surface);
+    border: 1px solid rgba(139,92,246,0.3);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(139,92,246,0.07);
+  }
+  .pathway-header {
+    padding: 10px 14px;
+    background: linear-gradient(135deg, rgba(139,92,246,0.14), rgba(0,212,170,0.08));
+    font-size: 11px; font-weight: 700; color: #c4b5fd;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+    border-bottom: 1px solid rgba(139,92,246,0.2);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .pathway-summary-strip {
+    padding: 8px 14px;
+    background: rgba(139,92,246,0.06);
+    border-bottom: 1px solid rgba(139,92,246,0.12);
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .phase-group { border-bottom: 1px solid var(--border); }
+  .phase-group:last-child { border-bottom: none; }
+  .phase-label {
+    padding: 7px 14px;
+    background: rgba(139,92,246,0.08);
+    font-size: 10px; font-weight: 700; color: #a78bfa;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    font-family: 'JetBrains Mono', monospace;
+    border-bottom: 1px solid rgba(139,92,246,0.1);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .phase-icon { font-size: 13px; }
+  .pathway-step {
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex; flex-direction: column; gap: 4px;
+    transition: background 0.15s;
+  }
+  .pathway-step:last-child { border-bottom: none; }
+  .pathway-step:hover { background: rgba(255,255,255,0.02); }
+  .step-action {
+    font-size: 12.5px; font-weight: 500; color: var(--text);
+    line-height: 1.4;
+  }
+  .step-meta {
+    display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px;
+  }
+  .tag.clinician { background: rgba(14,165,233,0.1); color: var(--accent2);
+                   border: 1px solid rgba(14,165,233,0.2); }
+  .tag.timeline { background: rgba(0,212,170,0.08); color: var(--accent);
+                  border: 1px solid rgba(0,212,170,0.2); }
+  .tag.phase-tag { background: rgba(139,92,246,0.1); color: #c4b5fd;
+                   border: 1px solid rgba(139,92,246,0.2); }
+  .step-expert {
+    margin-top: 4px;
+    font-size: 11px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .step-expert summary {
+    cursor: pointer; color: #a78bfa; font-size: 10.5px;
+    font-family: 'JetBrains Mono', monospace;
+    list-style: none; padding: 3px 0;
+  }
+  .step-expert summary::before { content: '\25B6  '; font-size: 9px; }
+  .step-expert[open] summary::before { content: '\25BC  '; }
+  .step-expert-body {
+    margin-top: 5px; display: flex; flex-direction: column; gap: 5px;
+  }
+  .step-decision {
+    padding: 5px 10px;
+    background: rgba(251,191,36,0.08);
+    border-left: 2px solid var(--yellow);
+    border-radius: 4px;
+    font-size: 11px; color: var(--yellow); line-height: 1.5;
+  }
+  .step-note {
+    padding: 5px 10px;
+    background: rgba(0,212,170,0.07);
+    border-left: 2px solid var(--accent);
+    border-radius: 4px;
+    font-size: 11px; color: var(--text-muted); line-height: 1.5;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">🏥</div>
+    <div>
+      <div class="header-title">HealthBot</div>
+      <div class="header-sub">Poonawalla Fincorp • Healthcare Navigator</div>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:10px;">
+    <div class="session-badge" id="sessionBadge" onclick="copySession()">no session</div>
+    <div class="status-dot"><div class="dot"></div>online</div>
+  </div>
+</div>
+
+<div class="chat-container" id="chatContainer">
+  <div class="welcome" id="welcomeScreen">
+    <div class="welcome-icon">🩺</div>
+    <h2>Namaste! Main HealthBot hoon</h2>
+    <p>Aapki healthcare queries, cost estimates, aur hospital suggestions mein madad karne ke liye yahan hoon.</p>
+    <div class="quick-chips">
+      <div class="chip" onclick="sendQuick('Mujhe chest mein dard ho raha hai, kya karu?')">🫀 Chest pain guidance</div>
+      <div class="chip" onclick="sendQuick('Mere ghutne mein bahut dard hai Delhi mein')">🦴 Ghutne mein dard</div>
+      <div class="chip" onclick="sendQuick('Knee replacement cost Indore mein')">💰 Knee cost Indore</div>
+      <div class="chip" onclick="sendQuick('Best cardiac hospital Mumbai mein')">🏥 Cardiac hospital Mumbai</div>
+      <div class="chip" onclick="sendQuick('Angioplasty kitne mein hogi Delhi mein')">❤️ Angioplasty cost</div>
+      <div class="chip" onclick="sendQuick('Mujhe diabetes hai, kaunsa doctor dikhana chahiye Bangalore mein?')">🩺 Diabetes doctor</div>
+      <div class="chip" onclick="sendQuick('Knee replacement mein kya kya hota hai? Steps batao')">🗺️ Knee Replacement pathway</div>
+      <div class="chip" onclick="sendQuick('Bypass surgery ka clinical pathway kya hai?')">❤️ Bypass Surgery pathway</div>
+    </div>
+  </div>
+</div>
+
+<div class="input-area">
+  <div class="input-wrap">
+    <textarea id="messageInput" placeholder="Kuch bhi poochho — symptoms, costs, hospitals..." rows="1"
+      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+  <div class="input-footer">
+    <span class="input-hint">Enter → send • Shift+Enter → newline</span>
+    <button class="new-chat-btn" onclick="newChat()">↺ New Chat</button>
+  </div>
+</div>
+
+<!-- Modal for full breakdown -->
+<div class="modal" id="breakdownModal">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeBreakdownModal()">&times;</button>
+    <h3 style="margin-bottom:10px; color:var(--accent2);">Full Cost Breakdown</h3>
+    <div id="breakdownContent"></div>
+  </div>
+</div>
+
+<script>
+  const API_URL = 'http://localhost:8000/chat';
+  let sessionId = null;
+  let isLoading = false;
+  let userLat = null;
+  let userLng = null;
+
+  // Try to get user location on first load
+  function requestUserLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          userLat = pos.coords.latitude;
+          userLng = pos.coords.longitude;
+        },
+        (err) => {
+          // User denied or error, just ignore
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    }
+  }
+
+  // Call on first load
+  requestUserLocation();
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function sendQuick(msg) {
+    document.getElementById('messageInput').value = msg;
+    sendMessage();
+  }
+
+  function copySession() {
+    if (sessionId) {
+      navigator.clipboard.writeText(sessionId);
+      document.getElementById('sessionBadge').textContent = 'copied!';
+      setTimeout(() => updateSessionBadge(), 1500);
+    }
+  }
+
+  function updateSessionBadge() {
+    const badge = document.getElementById('sessionBadge');
+    badge.textContent = sessionId ? sessionId.substring(0, 8) + '...' : 'no session';
+  }
+
+  function newChat() {
+    sessionId = null;
+    updateSessionBadge();
+    const container = document.getElementById('chatContainer');
+    container.innerHTML = `
+      <div class="welcome" id="welcomeScreen">
+        <div class="welcome-icon">🩺</div>
+        <h2>Namaste! Main HealthBot hoon</h2>
+        <p>Aapki healthcare queries, cost estimates, aur hospital suggestions mein madad karne ke liye yahan hoon.</p>
+        <div class="quick-chips">
+          <div class="chip" onclick="sendQuick('Mujhe chest mein dard ho raha hai, kya karu?')">🫀 Chest pain guidance</div>
+          <div class="chip" onclick="sendQuick('Mere ghutne mein bahut dard hai Delhi mein')">🦴 Ghutne mein dard</div>
+          <div class="chip" onclick="sendQuick('Knee replacement cost Indore mein')">💰 Knee cost Indore</div>
+          <div class="chip" onclick="sendQuick('Best cardiac hospital Mumbai mein')">🏥 Cardiac hospital Mumbai</div>
+          <div class="chip" onclick="sendQuick('Angioplasty kitne mein hogi Delhi mein')">❤️ Angioplasty cost</div>
+      <div class="chip" onclick="sendQuick('Mujhe diabetes hai, kaunsa doctor dikhana chahiye Bangalore mein?')">🩺 Diabetes doctor</div>
+          <div class="chip" onclick="sendQuick('Knee replacement mein kya kya hota hai? Steps batao')">🗺️ Knee Replacement pathway</div>
+          <div class="chip" onclick="sendQuick('Bypass surgery ka clinical pathway kya hai?')">❤️ Bypass Surgery pathway</div>
+        </div>
+      </div>`;
+  }
+
+  function getTime() {
+    return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function addUserMessage(text) {
+    const welcome = document.getElementById('welcomeScreen');
+    if (welcome) welcome.remove();
+
+    const container = document.getElementById('chatContainer');
+    const row = document.createElement('div');
+    row.className = 'message-row user';
+    row.innerHTML = `
+      <div class="avatar user">👤</div>
+      <div class="bubble-wrap">
+        <div class="bubble user">${escapeHtml(text)}</div>
+        <div class="timestamp">${getTime()}</div>
+      </div>`;
+    container.appendChild(row);
+    scrollBottom();
+  }
+
+  function showTyping() {
+    const container = document.getElementById('chatContainer');
+    const row = document.createElement('div');
+    row.className = 'typing-row';
+    row.id = 'typingIndicator';
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="typing-bubble">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>`;
+    container.appendChild(row);
+    scrollBottom();
+  }
+
+  function hideTyping() {
+    const t = document.getElementById('typingIndicator');
+    if (t) t.remove();
+  }
+
+  function renderBotMessage(data) {
+    const container = document.getElementById('chatContainer');
+    const row = document.createElement('div');
+    row.className = 'message-row';
+
+    let html = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble-wrap">`;
+
+    // Intent badge
+    if (data.intent) {
+      const intentEmoji = {
+        'SYMPTOM_QUERY': '🔍',
+        'PROCEDURE_COST': '💰',
+        'HOSPITAL_SUGGEST': '🏥',
+        'HOSPITAL_LOOKUP_BY_NAME': '🔎',
+        'GENERAL_HEALTH_ADVICE': '🩺',
+        'GENERAL_MEDICAL': '💬',
+        'CLINICAL_PATHWAY': '🗺️',
+        'FOLLOW_UP': '↩️'
+      }[data.intent] || '💬';
+      html += `<div class="intent-badge">${intentEmoji} ${data.intent.replace('_', ' ')}</div>`;
+    }
+
+    // Main reply bubble
+    html += `<div class="bubble bot">${formatReply(data.reply || 'Kuch issue ho gaya, dobara try karein.')}</div>`;
+
+    // Cost card
+    const cost = data.structured_data?.cost;
+    if (cost && cost.grand_total) {
+      const ec = cost.estimate_context || {};
+      const roomLabel = {'SEMI_PRIVATE':'Semi-Private','PRIVATE':'Private','GENERAL':'General Ward','ICU':'ICU'}[ec.room_type] || ec.room_type || 'Semi-Private';
+      html += `
+        <div class="data-card">
+          <div class="card-header">💰 Cost Estimate</div>
+          ${ec.procedure ? `
+          <div class="estimate-context-strip">
+            <span class="ec-item">🔬 ${escapeHtml(ec.procedure)}</span>
+            <span class="ec-sep">·</span>
+            <span class="ec-item">📍 ${escapeHtml(ec.city || 'N/A')}</span>
+            <span class="ec-sep">·</span>
+            <span class="ec-item">🏥 ${escapeHtml(ec.hospital_tier || 'Advanced Multispecialty')}</span>
+            <span class="ec-sep">·</span>
+            <span class="ec-item">🛏️ ${escapeHtml(roomLabel)}</span>
+          </div>` : ''}
+          <div class="cost-block">
+            <div class="cost-main">${cost.grand_total}</div>
+            ${(()=>{ const icd = data.full_result?.icd10; return (icd && icd.primary_code) ? `<span class="icd-badge">ICD-10: <strong>${escapeHtml(icd.primary_code)}</strong>${icd.primary_desc ? ' &nbsp;&middot;&nbsp; ' + escapeHtml(icd.primary_desc) : ''}</span>` : ''; })()}
+            ${(()=>{ 
+                const full = data.full_result || {};
+                let html = '';
+                if (full.age_band && full.age_band !== 'adult') {
+                  html += `<div class="age-severity-badge">👤 Age ${full.patient_age} yrs (${full.age_band}) — ${escapeHtml(full.age_severity_note)}</div>`;
+                }
+                if (full.gender_flag) {
+                  html += `<div class="gender-flag-note">⚠️ ${escapeHtml(full.gender_flag)}</div>`;
+                }
+                return html;
+            })()}
+            ${cost.budget_check ? `<div class="budget-badge budget-${escapeHtml(cost.budget_check.status)}">${escapeHtml(cost.budget_check.message)}</div>` : ''}
+            ${cost.recommended_loan ? `<div class="cost-loan">Recommended Loan: <span>₹${Number(cost.recommended_loan).toLocaleString('en-IN')}</span></div>` : ''}
+            ${cost.clinical_notes ? `<div style="font-size:11px;color:var(--text-muted);margin-top:4px">📋 ${cost.clinical_notes}</div>` : ''}
+            <button style="margin-top:10px;align-self:flex-start;font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid var(--accent2);background:var(--surface2);color:var(--accent2);cursor:pointer;" onclick='showBreakdownModal(${JSON.stringify(data.full_result || {}).replace(/'/g,"&#39;")})'>Show Full Breakdown</button>
+          </div>
+          <div class="disclaimer">⚠️ Indicative estimate ±20-25%. Hospital se confirm karein.</div>
+        </div>`;
+    }
+
+    // Hospitals card
+    const hospitals = data.structured_data?.hospitals;
+    if (hospitals && hospitals.length > 0) {
+      const budgetFilterMsg = data.structured_data?.budget_filter_message;
+      html += `
+        <div class="data-card">
+          <div class="card-header">🏥 Hospital Suggestions (${hospitals.length})</div>
+          ${budgetFilterMsg ? `<div class="budget-filter-note">💰 ${escapeHtml(budgetFilterMsg)}</div>` : ''}
+          <div class="hospital-list">`;
+      hospitals.forEach((h, i) => {
+        const confClass = h.confidence === 'High' ? 'conf-high' : h.confidence === 'Medium' ? 'conf-med' : 'conf-low';
+        html += `
+          <div class="hospital-item">
+            <div class="hosp-name">${i+1}. ${h.name || 'N/A'}</div>
+            <div class="hosp-meta">
+              <span class="tag tier">${h.tier || ''}</span>
+              ${h.cost_range ? `<span class="tag cost">${h.cost_range}</span>` : ''}
+              ${h.rating > 0 ? `<span class="tag rating">⭐ ${h.rating}</span>` : ''}
+              ${h.distance_km ? `<span class="tag dist">📍 ${h.distance_km} km</span>` : ''}
+              ${h.confidence ? `<span class="tag ${confClass}">● ${h.confidence}</span>` : ''}
+            </div>
+          </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // Health advice card (for GENERAL_HEALTH_ADVICE intent)
+    const advice = data.structured_data?.health_advice;
+    if (advice && data.intent === 'GENERAL_HEALTH_ADVICE') {
+      const urgencyClass = {
+        'Emergency': 'emergency',
+        'Urgent (within 48 hrs)': 'urgent',
+        'Soon (within 1 week)': 'soon',
+        'Routine': 'routine'
+      }[advice.urgency] || 'routine';
+
+      const urgencyEmoji = {
+        'Emergency': '🚨',
+        'Urgent (within 48 hrs)': '⚠️',
+        'Soon (within 1 week)': '📅',
+        'Routine': '📆'
+      }[advice.urgency] || '📅';
+
+      html += `
+        <div class="advice-card">
+          <div class="advice-header">🩺 Health Guidance</div>
+          <div class="advice-body">`;
+
+      // Doctor recommendation block
+      if (advice.doctor_type) {
+        html += `
+          <div class="doctor-rec">
+            <div class="doctor-title">👨‍⚕️ ${escapeHtml(advice.doctor_type)}`
+            + (advice.doctor_type_hindi ? ` <span style="font-size:12px;font-weight:400;color:var(--text-muted)">(${escapeHtml(advice.doctor_type_hindi)})</span>` : '')
+            + `</div>`;
+        if (advice.why_this_doctor) {
+          html += `<div class="doctor-sub">↳ ${escapeHtml(advice.why_this_doctor)}</div>`;
+        }
+        html += `</div>`;
+      }
+
+      // Urgency bar
+      if (advice.urgency) {
+        html += `
+          <div class="urgency-bar ${urgencyClass}">
+            ${urgencyEmoji} ${escapeHtml(advice.urgency)}
+            ${advice.urgency_reason ? `<span style="font-weight:400;font-size:11px;opacity:0.8"> — ${escapeHtml(advice.urgency_reason)}</span>` : ''}
+          </div>`;
+      }
+
+      // Common tests
+      if (advice.common_tests && advice.common_tests.length > 0) {
+        html += `<div>
+          <div class="advice-section-title">🔬 Common Tests</div>
+          <div class="pill-list">`;
+        advice.common_tests.forEach(t => {
+          html += `<span class="pill test">${escapeHtml(t)}</span>`;
+        });
+        html += `</div></div>`;
+      }
+
+      // Red flags
+      if (advice.red_flags && advice.red_flags.length > 0) {
+        html += `<div>
+          <div class="advice-section-title">🚩 Emergency Warning Signs</div>
+          <div class="red-flag-list">`;
+        advice.red_flags.forEach(flag => {
+          html += `<div class="red-flag-item">⚡ ${escapeHtml(flag)}</div>`;
+        });
+        html += `</div></div>`;
+      }
+
+      // Home tips
+      if (advice.home_tips && advice.home_tips.length > 0) {
+        html += `<div>
+          <div class="advice-section-title">💡 Meanwhile at Home</div>
+          <div class="pill-list">`;
+        advice.home_tips.forEach(tip => {
+          html += `<span class="pill tip">&#10003; ${escapeHtml(tip)}</span>`;
+        });
+        html += `</div></div>`;
+      }
+
+      html += `</div></div>`; // close advice-body and advice-card
+    }
+
+    // Specialty hospitals card — skip if user asked for doctors only
+    const specialtyHospitals = data.structured_data?.specialty_hospitals;
+    const doctorOnlyMode = data.structured_data?.doctor_only_mode;
+    if (specialtyHospitals && specialtyHospitals.length > 0 && !doctorOnlyMode) {
+      const isAvoidMode = data.structured_data?.avoid_mode;
+      const doctorType = data.structured_data?.health_advice?.doctor_type
+        || (data.intent === 'HOSPITAL_SUGGEST' ? 'Recommended' : 'Specialist');
+      const cityName = data.city ? data.city.charAt(0).toUpperCase() + data.city.slice(1) : '';
+      const headerLabel = isAvoidMode
+        ? '&#9888;&#65039; Hospitals with Reported Issues'
+        : `&#127973; ${escapeHtml(doctorType)} Hospitals${cityName ? ' in ' + escapeHtml(cityName) : ''}`;
+      html += `<div class="data-card">
+          <div class="card-header">${headerLabel} (${specialtyHospitals.length})</div>
+          ${isAvoidMode ? `<div class="avoid-banner">&#9888;&#65039; These hospitals have complaints noted in patient reviews. Consider alternatives.</div>` : ''}
+          <div class="specialty-hosp-list">`;
+      specialtyHospitals.forEach((h, i) => {
+        const mqColor = {
+          'Strong': '#27ae60', 'Moderate': '#f39c12',
+          'Weak': '#e74c3c',   'No review data': '#95a5a6'
+        }[h.specialty_match_quality] || '#95a5a6';
+        const strengthHTML = (h.strength_tags || []).map(t =>
+          `<span class='tag green'>${escapeHtml(t)}</span>`).join('');
+        const riskHTML = (h.risk_flags || []).map(r =>
+          `<span class='tag red'>&#9888;&#65039; ${escapeHtml(r)}</span>`).join('');
+        const doctorsHTML = (h.top_doctors || []).map(d =>
+          `<div class='doctor-row'>&#x1F468;&#x200D;&#x2695;&#xFE0F; <b>${escapeHtml(d.name)}</b> &mdash; ${escapeHtml(d.specialty_label)}, mentioned ${d.mentions}x</div>`
+        ).join('');
+        const reasonsHTML = (h.reasons || []).map(r =>
+          `<li>${escapeHtml(r)}</li>`).join('');
+        const distKm = (h.distance_km !== null && h.distance_km !== undefined)
+          ? parseFloat(h.distance_km).toFixed(1) : null;
+        const phoneOk = h.phone && h.phone !== 'N/A' && h.phone !== 'nan' && h.phone !== 'NA';
+        html += `<div class="spec-hosp-item">
+            <div class="hosp-name">${i+1}. ${escapeHtml(h.name || 'N/A')}</div>
+            <div class="hosp-meta">
+              <span class="tag tier">${escapeHtml(h.tier || '')}</span>
+              ${h.rating > 0 ? `<span class="tag rating">&#11088; ${h.rating}</span>` : ''}
+              ${distKm ? `<span class="tag dist">&#128205; ${distKm} km</span>` : ''}
+              ${h.nabh && h.nabh !== 'N/A' ? `<span class="tag conf-high">NABH &#10003;</span>` : ''}
+            </div>
+            ${h.specialty_match_quality ? `<div class="match-quality" style="color:${mqColor}">Review match: <b>${escapeHtml(h.specialty_match_quality)}</b></div>` : ''}
+            <div style="margin:3px 0">${strengthHTML}${riskHTML}</div>
+            ${doctorsHTML}
+            ${phoneOk ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">&#128222; ${escapeHtml(h.phone)}</div>` : ''}
+            ${reasonsHTML ? `<details><summary>Why this hospital?</summary><ul>${reasonsHTML}</ul></details>` : ''}
+          </div>`;
+      });
+      html += `</div>
+        <div style="font-size:10px;color:var(--text-muted);padding:6px 14px 10px;font-style:italic;border-top:1px solid var(--border);">
+          &#128205; Distance from ${userLat ? 'your current location' : 'city centre'}. Share location for precise distances.
+        </div></div>`;
+    }
+
+    // Doctor Recommendation card — only shown when user asked for doctors specifically
+    const recDoctors = data.structured_data?.recommended_doctors;
+    if (recDoctors && recDoctors.length > 0 && doctorOnlyMode) {
+      const specLabel = recDoctors[0]?.specialty_label || 'Specialty';
+      const cityName = data.city || '';
+      html += `<div class="doc-rec-card">
+        <div class="doc-rec-header">&#x1F468;&#x200D;&#x2695;&#xFE0F; Top Doctors for ${escapeHtml(specLabel)}${cityName ? ' in ' + escapeHtml(cityName) : ''} (${recDoctors.length})</div>`;
+      recDoctors.forEach((d, i) => {
+        const stars = d.sentiment >= 0.7 ? '&#9733;&#9733;&#9733;&#9733;&#9733;' :
+                      d.sentiment >= 0.4 ? '&#9733;&#9733;&#9733;&#9733;' :
+                      d.sentiment >= 0.1 ? '&#9733;&#9733;&#9733;' : '&#9733;&#9733;';
+        const hospRating = d.hospital_rating > 0 ? `&#11088; ${d.hospital_rating}` : '';
+        const phoneOk = d.hospital_phone && d.hospital_phone !== 'N/A' && d.hospital_phone !== 'nan' && d.hospital_phone !== 'NA' && d.hospital_phone.trim() !== '';
+        html += `<div class="doc-rec-item">
+          <div class="doc-rec-name">${i+1}. ${escapeHtml(d.name)}</div>
+          <div class="doc-rec-meta">
+            <b>${escapeHtml(d.specialty_label)}</b> &bull;
+            ${escapeHtml(d.hospital)} &bull; ${escapeHtml(d.hospital_tier || '')}
+            ${hospRating ? `&bull; ${hospRating}` : ''}
+          </div>
+          <div class="doc-rec-meta">
+            Patient reviews: ${stars} &bull; Mentioned ${d.mentions}x
+          </div>
+          ${phoneOk ? `<div class="doc-rec-meta" style="margin-top:3px;">&#128222; ${escapeHtml(d.hospital_phone)}</div>` : ''}
+        </div>`;
+      });
+      html += `</div>`;
+    }
+
+    // ── Clinical Pathway card ──────────────────────────────────────────────
+    const fullPathway = data.structured_data?.full_pathway;
+    if (fullPathway && fullPathway.length > 0) {
+      const proc = data.procedure || '';
+      const summary = data.structured_data?.pathway_summary || `${fullPathway.length} steps`;
+
+      // PHASE_ICONS map
+      const PHASE_ICON = {
+        'Pre-Op Assessment': '🩺', 'Pre-Op': '🩺',
+        'Day of Surgery': '🔪',   'Surgery': '🔪',
+        'ICU Care': '🏥',          'ICU': '🏥',
+        'Discharge': '🚪',
+        'Follow-Up': '📅',         'Follow Up': '📅',
+      };
+
+      // Group steps by phase
+      const phaseMap = {};
+      const phaseOrder = [];
+      fullPathway.forEach(s => {
+        const p = s.phase || 'General';
+        if (!phaseMap[p]) { phaseMap[p] = []; phaseOrder.push(p); }
+        phaseMap[p].push(s);
+      });
+
+      html += `<div class="pathway-card">
+        <div class="pathway-header">
+          <span>🗺️ Clinical Pathway${proc ? ' — ' + escapeHtml(proc) : ''}</span>
+          <span style="font-size:10px;color:var(--text-muted);font-weight:400;">${phaseOrder.length} phases · ${fullPathway.length} steps</span>
+        </div>
+        <div class="pathway-summary-strip">${escapeHtml(summary)}</div>`;
+
+      phaseOrder.forEach(phase => {
+        const icon = Object.entries(PHASE_ICON).find(([k]) => phase.includes(k))?.[1] || '📌';
+        html += `<div class="phase-group">
+          <div class="phase-label"><span class="phase-icon">${icon}</span>${escapeHtml(phase)}</div>`;
+
+        phaseMap[phase].forEach(step => {
+          const hasDetail = (step.decision && step.decision !== 'nan' && step.decision.trim())
+                         || (step.note && step.note !== 'nan' && step.note.trim());
+
+          html += `<div class="pathway-step">
+            <div class="step-action">${escapeHtml(step.action || '')}</div>
+            <div class="step-meta">`;
+
+          if (step.clinician && step.clinician !== 'nan')
+            html += `<span class="tag clinician">👨‍⚕️ ${escapeHtml(step.clinician)}</span>`;
+          if (step.timeline && step.timeline !== 'nan')
+            html += `<span class="tag timeline">🕒 ${escapeHtml(step.timeline)}</span>`;
+
+          html += `</div>`;
+
+          if (hasDetail) {
+            html += `<details class="step-expert">
+              <summary>Expert detail</summary>
+              <div class="step-expert-body">`;
+            if (step.decision && step.decision !== 'nan' && step.decision.trim())
+              html += `<div class="step-decision">⚖️ ${escapeHtml(step.decision)}</div>`;
+            if (step.note && step.note !== 'nan' && step.note.trim())
+              html += `<div class="step-note">💡 ${escapeHtml(step.note)}</div>`;
+            html += `</div></details>`;
+          }
+
+          html += `</div>`; // close pathway-step
+        });
+
+        html += `</div>`; // close phase-group
+      });
+
+      html += `<div style="font-size:10px;color:var(--text-muted);padding:7px 14px 9px;font-style:italic;border-top:1px solid var(--border);">⚠️ Pathway is indicative. Actual protocol depends on hospital and treating physician.</div>`;
+      html += `</div>`; // close pathway-card
+    }
+
+    html += `<div class="timestamp">${getTime()}</div></div>`;
+    row.innerHTML = html;
+    container.appendChild(row);
+    scrollBottom();
+  }
+
+  function formatReply(text) {
+    return escapeHtml(text)
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/_(.*?)_/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function scrollBottom() {
+    const c = document.getElementById('chatContainer');
+    setTimeout(() => c.scrollTop = c.scrollHeight, 50);
+  }
+
+  async function sendMessage() {
+    if (isLoading) return;
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    input.style.height = 'auto';
+    isLoading = true;
+    document.getElementById('sendBtn').disabled = true;
+
+    addUserMessage(text);
+    showTyping();
+
+    // Prepare payload
+    let payload = { message: text, session_id: sessionId };
+    if (userLat !== null && userLng !== null) {
+      payload.user_lat = userLat;
+      payload.user_lng = userLng;
+    }
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      hideTyping();
+
+      // Save session
+      if (data.session_id) {
+        sessionId = data.session_id;
+        updateSessionBadge();
+      }
+
+      renderBotMessage(data);
+
+    } catch (err) {
+      hideTyping();
+      renderBotMessage({
+        reply: `❌ API connect nahi ho raha.\napi.py chal raha hai?\n\nError: ${err.message}`,
+        intent: null,
+        structured_data: {}
+      });
+    }
+
+    isLoading = false;
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('messageInput').focus();
+  }
+
+  function showBreakdownModal(fullResult) {
+    const modal = document.getElementById('breakdownModal');
+    const content = document.getElementById('breakdownContent');
+    if (!fullResult || Object.keys(fullResult).length === 0) {
+      content.innerHTML = '<em>No detailed breakdown available.</em>';
+      modal.style.display = 'flex';
+      return;
+    }
+    let html = '';
+    // Summary section
+    if (fullResult.summary) {
+      html += `<h4 style='margin:8px 0 4px 0;color:var(--accent2);font-size:15px;'>Summary</h4><table style='width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px;'>`;
+      html += `<tr><th style='text-align:left;padding:4px 8px;border-bottom:1px solid var(--border);'>Component</th><th style='text-align:right;padding:4px 8px;border-bottom:1px solid var(--border);'>Min</th><th style='text-align:right;padding:4px 8px;border-bottom:1px solid var(--border);'>Max</th></tr>`;
+      for (const [key, val] of Object.entries(fullResult.summary)) {
+        if (typeof val === 'object' && val !== null && 'min' in val && 'max' in val) {
+          html += `<tr><td style='padding:4px 8px;border-bottom:1px solid var(--border);'>${escapeHtml(key.replace(/_/g, ' '))}</td><td style='padding:4px 8px;text-align:right;border-bottom:1px solid var(--border);'>${escapeHtml(val.min)}</td><td style='padding:4px 8px;text-align:right;border-bottom:1px solid var(--border);'>${escapeHtml(val.max)}</td></tr>`;
+        } else {
+          html += `<tr><td style='padding:4px 8px;border-bottom:1px solid var(--border);'>${escapeHtml(key.replace(/_/g, ' '))}</td><td colspan='2' style='padding:4px 8px;text-align:right;border-bottom:1px solid var(--border);'>${escapeHtml(val)}</td></tr>`;
+        }
+      }
+      html += `</table>`;
+    }
+    // Grand total
+    if (fullResult.grand_total && (fullResult.grand_total.min || fullResult.grand_total.formatted)) {
+      html += `<div style='font-size:16px;font-weight:bold;margin:10px 0 6px 0;'>Grand Total: <span style='color:var(--accent);'>${escapeHtml(fullResult.grand_total.formatted || (fullResult.grand_total.min + ' – ' + fullResult.grand_total.max))}</span></div>`;
+    }
+    // Bill breakdown sections
+    if (fullResult.bill_breakdown) {
+      for (const [section, details] of Object.entries(fullResult.bill_breakdown)) {
+        html += `<h4 style='margin:14px 0 4px 0;color:var(--accent);font-size:14px;'>${escapeHtml(section.replace(/_/g, ' '))}</h4>`;
+        html += `<table style='width:100%;border-collapse:collapse;font-size:13px;margin-bottom:8px;'>`;
+        for (const [key, val] of Object.entries(details)) {
+          if (key.startsWith('_')) continue; // skip meta fields
+          if (typeof val === 'object' && val !== null) {
+            html += `<tr><td style='padding:4px 8px;border-bottom:1px solid var(--border);'>${escapeHtml(key.replace(/_/g, ' '))}</td><td style='padding:4px 8px;text-align:right;border-bottom:1px solid var(--border);'>`;
+            if ('estimated_min' in val && 'estimated_max' in val) {
+              html += `₹${escapeHtml(val.estimated_min)} – ₹${escapeHtml(val.estimated_max)}`;
+            } else if ('final' in val) {
+              html += `₹${escapeHtml(val.final)}`;
+            } else if ('total' in val) {
+              html += `₹${escapeHtml(val.total)}`;
+            } else if ('card_value' in val) {
+              html += `₹${escapeHtml(val.card_value)}`;
+            } else {
+              html += escapeHtml(JSON.stringify(val));
+            }
+            if (val.description) html += `<div style='font-size:11px;color:var(--text-muted);margin-top:2px;'>${escapeHtml(val.description)}</div>`;
+            if (val.note) html += `<div style='font-size:11px;color:var(--text-muted);margin-top:2px;'>${escapeHtml(val.note)}</div>`;
+            html += `</td></tr>`;
+          } else {
+            html += `<tr><td style='padding:4px 8px;border-bottom:1px solid var(--border);'>${escapeHtml(key.replace(/_/g, ' '))}</td><td style='padding:4px 8px;text-align:right;border-bottom:1px solid var(--border);'>${escapeHtml(val)}</td></tr>`;
+          }
+        }
+        html += `</table>`;
+      }
+    }
+    // Clinical notes
+    if (fullResult.clinical_notes) {
+      html += `<div style='margin-top:10px;font-size:12px;color:var(--text-muted);'><b>Clinical Notes:</b> ${escapeHtml(fullResult.clinical_notes)}</div>`;
+    }
+    // Disclaimer
+    if (fullResult.disclaimer) {
+      html += `<div style='margin-top:10px;font-size:12px;color:var(--text-muted);'>${escapeHtml(fullResult.disclaimer)}</div>`;
+    }
+    // Fallback to JSON if nothing rendered
+    if (!html) {
+      html = `<pre>${escapeHtml(JSON.stringify(fullResult, null, 2))}</pre>`;
+    }
+    content.innerHTML = html;
+    modal.style.display = 'flex';
+  }
+  function closeBreakdownModal() {
+    document.getElementById('breakdownModal').style.display = 'none';
+  }
+  // Close modal on outside click
+  window.onclick = function(event) {
+    const modal = document.getElementById('breakdownModal');
+    if (event.target === modal) {
+      closeBreakdownModal();
+    }
+  }
+</script>
+</body>
+</html>

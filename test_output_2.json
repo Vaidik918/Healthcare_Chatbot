@@ -1,0 +1,259 @@
+{
+  "session_id": "e80ee1df-c441-495a-a2b9-42bd844b65cd",
+  "intent": "PROCEDURE_COST",
+  "procedure": "CABG - Bypass Surgery",
+  "city": "Mumbai",
+  "backend_used": true,
+  "reply": "Mujhe pata hai aapko bypass surgery ke liye hospitals chahiye under 3 lakh in Mumbai. Main aapko kuch options dikhata hoon jahan aapko ye procedure mil sakta hai. Aapko hospital ki tier aur specific details bhi milenge.\n\n📍 **Clinical Pathway:** 12 steps (Surgery (On-Pump), ICU + Ward, Discharge + Follow-Up, Follow-Up, Robotic Surgery (TECAB), ICU Care, OPCAB Surgery, Pre-Op + Patient Selection, Pre-Op Assessment, ICU + Discharge, Ward + Discharge)\n\n⚠️ _Yeh ek advisory hai. Diagnosis ke liye doctor se zaroor milein. Kisi bhi emergency mein 112 ya nazdiki hospital jaayein._",
+  "structured_data": {
+    "cost": {
+      "grand_total": "₹335,961 – ₹448,374",
+      "recommended_loan": 490000,
+      "summary": {
+        "procedure_ot": {
+          "min": 107525,
+          "max": 161288
+        },
+        "hospital_stay": {
+          "min": 48875,
+          "max": 73312
+        },
+        "medication": 27000,
+        "icu_ventilator": 44640,
+        "implant": 25000,
+        "tech": 0,
+        "gst_room": 0,
+        "contingency": {
+          "min": 43821,
+          "max": 58484
+        }
+      },
+      "clinical_notes": "LIMA to LAD gold standard. ICU 3 days.",
+      "disclaimer": "Indicative estimate ±20–25%. Actual depends on case complexity, surgeon fee, implant brand. No GST on surgery/hospital services in India. Room GST 5% only if >₹5,000/day. Consult hospital for formal quotation.",
+      "estimate_context": {
+        "procedure": "CABG - Bypass Surgery",
+        "city": "Mumbai",
+        "room_type": "SEMI_PRIVATE",
+        "hospital_tier": "Advanced Multispecialty"
+      },
+      "budget_check": {
+        "budget_inr": 300000,
+        "status": "over",
+        "message": "❌ Advanced Multispecialty mein estimated cost ₹335,961–₹448,374 hai, jo aapke budget ₹300,000 se zyada hai. Neeche ke tier ka hospital ya Government hospital try karein."
+      }
+    },
+    "hospitals": [
+      {
+        "name": "holy family hospital",
+        "tier": "Standard Secondary General",
+        "rating": 4.7,
+        "distance_km": 5.8,
+        "cost_range": "₹226,981 – ₹305,670",
+        "cost_min": 226981,
+        "phone": "022 6267 0555",
+        "nabh": "Accredited",
+        "confidence": "High",
+        "speciality_match": 0.65
+      },
+      {
+        "name": "kolekar hospital and iccu,",
+        "tier": "Small Day-Care Clinics",
+        "rating": 4.5,
+        "distance_km": 3.0,
+        "cost_range": "₹174,110 – ₹219,075",
+        "cost_min": 174110,
+        "phone": "022 3508 3100",
+        "nabh": "Accredited",
+        "confidence": "High",
+        "speciality_match": 0.65
+      }
+    ],
+    "specialty_hospitals": null,
+    "recommended_doctors": null,
+    "doctor_only_mode": false,
+    "avoid_mode": false,
+    "health_advice": null,
+    "pathway_steps": 12,
+    "pathway_summary": null,
+    "full_pathway": null,
+    "budget_filter_message": "₹300,000 budget ke andar 2 hospital(s) dikha rahe hain."
+  },
+  "missing_info": [],
+  "full_result": {
+    "procedure": "CABG - Bypass Surgery",
+    "sub_procedure": "Standard On-Pump CABG",
+    "variant": "2-4 Vessel Disease - Standard CPB",
+    "tech_type": "Open",
+    "hospital_tier": "Advanced Multispecialty",
+    "city": "mumbai",
+    "city_tier": "T1",
+    "room_type": "SEMI_PRIVATE",
+    "comorbidities": [],
+    "is_diagnostic": false,
+    "clinical_notes": "LIMA to LAD gold standard. ICU 3 days.",
+    "clinical_pathway": [
+      {
+        "step": 1,
+        "phase": "Pre-Op Assessment",
+        "action": "Coronary Angiography; ECHO (EF%, wall motion); CBC, Coag, KFT, LFT, Carotid Duplex",
+        "clinician": "Cardiothoracic Surgeon + Cardiologist",
+        "timeline": "1-2 weeks pre-op",
+        "decision": "CABG preferred: Left Main disease, 3-vessel disease, SYNTAX >32, EF<35%",
+        "note": "LIMA to LAD: gold standard anastomosis"
+      },
+      {
+        "step": 2,
+        "phase": "Surgery (On-Pump)",
+        "action": "Median sternotomy; cardiopulmonary bypass; cardioplegia; LIMA-LAD + SVG grafts; decannulation",
+        "clinician": "CT Surgeon + Perfusionist",
+        "timeline": "Day 0",
+        "decision": "Off-pump (OPCAB) preferred for elderly/renal impairment (CV016 = 201780)",
+        "note": "Complete revascularisation target"
+      },
+      {
+        "step": 3,
+        "phase": "ICU Care",
+        "action": "Ventilated ICU 6-24h; inotropes; serial ECG + troponin; drain output monitoring",
+        "clinician": "ICU Team + CT Surgeon",
+        "timeline": "Day 0-3",
+        "decision": "Extubate within 6-8h if haemodynamically stable",
+        "note": "Graft occlusion: new ST change = urgent angiography"
+      },
+      {
+        "step": 4,
+        "phase": "Ward + Discharge",
+        "action": "Mobilise Day 3-4; sternal precautions 6 weeks; discharge Day 7-10; cardiac rehab",
+        "clinician": "Physiotherapist + Surgeon",
+        "timeline": "Day 7-10",
+        "decision": "DAPT + statin + ACEI + beta-blocker at discharge",
+        "note": "Sternal wound: no driving 6 weeks"
+      },
+      {
+        "step": 5,
+        "phase": "Follow-Up",
+        "action": "ECG + ECHO at 6 weeks; stress test at 3 months; angiography if symptoms recur",
+        "clinician": "Cardiologist",
+        "timeline": "6 weeks, 3 months, 1 year",
+        "decision": "Graft patency: LIMA 10-year >90%; SVG 50% at 10 years",
+        "note": "Secondary prevention lifelong"
+      }
+    ],
+    "icd10": {
+      "primary_code": "I25.10",
+      "primary_desc": "Atherosclerotic heart disease of native coronary artery (on-pump CABG)",
+      "secondary_code": "Z95.1",
+      "secondary_note": "Presence of coronary artery bypass graft (post-op status code)"
+    },
+    "bill_breakdown": {
+      "━━ VARIABLE BUCKET (Tier Mult Applied) ━━": {
+        "_multiplier": "2.0x – 3.0x  [Advanced Multispecialty, T1]",
+        "_room_type_adj": "1.15x (PRIVATE=1.30x, SEMI=1.15x, GEN=1.00x)",
+        "procedure_ot_surgeon": {
+          "description": "Surgery package + OT + Anaesthesia + Dr Visits",
+          "estimated_min": 107525,
+          "estimated_max": 161288,
+          "note": "Comorb adj 1.0x on BASE ₹85,000. Room type adj 1.15x."
+        },
+        "hospital_stay_room": {
+          "description": "Room charges (SEMI_PRIVATE) × 10 days",
+          "room_per_day_at_tier": 8000,
+          "estimated_min": 48875,
+          "estimated_max": 73312,
+          "note": "Base room/day ₹4,000 × 10 base days + 0 comorb days"
+        },
+        "misc_admin": {
+          "description": "Misc/Admin (billing, ward, diet, attendant)",
+          "estimated_min": 39100,
+          "estimated_max": 58650
+        }
+      },
+      "━━ SEMI-VARIABLE BUCKET ━━": {
+        "_note": "ICU/Vent/Medicines — own tier mult (gentler)",
+        "icu_charges": {
+          "description": "ICU care — 3 days",
+          "icu_rate_per_day": 11880,
+          "procedure_icu_days": 3,
+          "comorbidity_icu_days": 0,
+          "total": 35640,
+          "note": "₹11,880/day (Advanced Multispecialty: 2.2x base ₹5,400)"
+        },
+        "ventilator_charges": {
+          "description": "Ventilator — 2 days",
+          "total": 9000,
+          "note": "₹4,500/day (1.5x base)"
+        },
+        "medication": {
+          "description": "Drugs, IV fluids, consumables",
+          "total": 27000,
+          "note": "Base ₹15,000 + comorb ₹0, tier 1.8x"
+        }
+      },
+      "━━ FIXED BUCKET (No Tier Multiplier) ━━": {
+        "_note": "NPPA/CGHS capped. Cap mult: 1.0x",
+        "implant_consumable": {
+          "description": "Prosthetic implant / device (NPPA regulated)",
+          "card_value": 25000.0,
+          "final": 25000,
+          "note": "Fixed regardless of hospital tier. Govt/Small: 0.70-0.85x"
+        },
+        "technology_premium": {
+          "description": "Tech/device cost (robotic, laser, navigation etc.)",
+          "card_value": 0.0,
+          "final": 0,
+          "note": "CGHS CV013 CABG = 153900; CPB consumables avg 12000-18000 = 15000; no robotic premium"
+        }
+      },
+      "━━ TAXES ━━": {
+        "gst_room_5pct": {
+          "description": "5% GST on room rent above ₹5,000/day only",
+          "taxable_per_day": 0,
+          "total_days": 10,
+          "total": 0,
+          "note": "Surgery/hospital services exempt from GST in India"
+        },
+        "surgery_gst": "EXEMPT — healthcare services not taxable in India",
+        "medicine_gst": "EXEMPT — included in drug MRP",
+        "diagnostic_gst": "0% — pathology/radiology exempt"
+      },
+      "━━ CONTINGENCY 15% ━━": {
+        "min": 43821,
+        "max": 58484,
+        "note": "Mandatory 15% buffer (Poonawalla Fincorp standard)"
+      }
+    },
+    "summary": {
+      "procedure_ot": {
+        "min": 107525,
+        "max": 161288
+      },
+      "hospital_stay": {
+        "min": 48875,
+        "max": 73312
+      },
+      "medication": 27000,
+      "icu_ventilator": 44640,
+      "implant": 25000,
+      "tech": 0,
+      "gst_room": 0,
+      "contingency": {
+        "min": 43821,
+        "max": 58484
+      }
+    },
+    "grand_total": {
+      "min": 335961,
+      "max": 448374,
+      "formatted": "₹335,961 – ₹448,374"
+    },
+    "loan_relevant_amount": {
+      "min": 335961,
+      "max": 448374,
+      "formatted": "₹335,961 – ₹448,374",
+      "recommended_loan": 490000,
+      "note": "Includes 15% contingency buffer + 10% lender safety margin."
+    },
+    "reference_total_standard": 0.0,
+    "disclaimer": "Indicative estimate ±20–25%. Actual depends on case complexity, surgeon fee, implant brand. No GST on surgery/hospital services in India. Room GST 5% only if >₹5,000/day. Consult hospital for formal quotation."
+  },
+  "follow_up_question": "Which type of hospital do you want? (Standard Secondary General, Tertiary Corporate, Advanced Multispecialty, Small Day-Care Clinics, Boutique Super-Specialty)"
+}
