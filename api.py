@@ -43,7 +43,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+@app.head("/")
+def head_root():
+    return HTMLResponse(content="", status_code=200)
 
 @app.get("/", response_class=HTMLResponse)
 def serve_ui():
