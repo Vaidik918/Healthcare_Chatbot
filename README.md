@@ -1,5 +1,5 @@
 # 🏥 HealthBot — AI Healthcare Navigator
-### by Poonawalla Fincorp
+
 
 > **🔗 Live Demo: [https://healthcare-chatbot-0qw1.onrender.com](https://healthcare-chatbot-0qw1.onrender.com)**
 > *(First load may take 30–50 seconds on free tier)*
@@ -21,7 +21,7 @@ An intelligent healthcare chatbot for India that helps users with procedure cost
 | 🔁 Multi-turn Sessions | Remembers context across conversation turns |
 
 ---
-
+Ensure the questions asked are within scope! Refer to the procedures list in RATE_CARDS.xlsx prior.
 ## 📸 Screenshots
 
 ### 🏥 Hospital Suggestions (Review-ranked)
