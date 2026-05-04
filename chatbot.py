@@ -498,11 +498,36 @@ def _get_hospitals_by_specialty(
             h["specialty_sentiment"]     = round(spec_score, 3)
             h["review_doctors"]          = [d["name"] for d in enriched["top_doctors"]]
 
-        hospitals.sort(key=lambda h: -h["composite_score"])
-        
-        # We only want to return hospitals that have SOME relevance (either review spec_score > 0 or has_official_spec)
-        valid_hospitals = [h for h in hospitals if h["specialty_sentiment"] > 0]
-        top = valid_hospitals[:limit] if valid_hospitals else hospitals[:limit]
+        # NEW — Top 2 VADER, Bottom 3 MAS
+        reviewed = [h for h in hospitals 
+                    if h["specialty_match_quality"] in ("Strong", "Moderate", "Weak")
+                    and h["specialty_sentiment"] > 0]
+        market   = [h for h in hospitals 
+                    if h["specialty_match_quality"] in ("Market Aligned", 
+                                                         "Market Aligned (Secondary)", 
+                                                         "No review data")]
+
+        reviewed.sort(key=lambda h: -h["composite_score"])
+        market.sort(key=lambda h: -h["composite_score"])
+
+        top_2 = []
+        used = set()
+        for h in reviewed:
+            if len(top_2) >= 2: break
+            if h["name"] not in used:
+                h["_source"] = "reviews"
+                top_2.append(h)
+                used.add(h["name"])
+
+        top_3 = []
+        for h in market + reviewed:   # market first, then reviewed leftovers
+            if len(top_3) >= (limit - len(top_2)): break
+            if h["name"] not in used:
+                h["_source"] = h.get("_source", "market")
+                top_3.append(h)
+                used.add(h["name"])
+
+        top = top_2 + top_3
         
         for h in top:
             h["reasons"] = build_reasons(h, spec_code_up)
