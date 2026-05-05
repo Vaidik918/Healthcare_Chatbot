@@ -28,21 +28,25 @@ Ensure the questions asked are within scope! Refer to the procedures list in RAT
 ### 🏥 Hospital Suggestions (Review-ranked)
 > Top 2 hospitals ranked by VADER review sentiment, bottom 3 by market alignment score
 
-![Hospital Suggestions](screenshots/ss1_hospitals.png)
+![Hospital Suggestions]<img width="1895" height="782" alt="image" src="https://github.com/user-attachments/assets/64566903-20e8-4e6a-bce3-9feb49872c71" />
+
 
 ---
 
 ### 💰 Detailed Cost Breakdown
 > Full bill breakdown — Variable + Semi-Variable buckets, tier multipliers, ICU charges
 
-![Cost Breakdown](screenshots/ss2_breakdown.png)
+![Cost Breakdown]<img width="1900" height="744" alt="image" src="https://github.com/user-attachments/assets/5de50ad0-53ea-4a2d-bcd9-6bcb86d60d34" />
+<img width="750" height="828" alt="image" src="https://github.com/user-attachments/assets/4430734c-e721-4755-a343-42707cac1ca6" />
 
 ---
 
 ### 🩺 Health Guidance Card
 > Symptom → Specialist mapping with urgency, tests, warning signs — in Hinglish
 
-![Health Guidance](screenshots/ss3_health_guidance.png)
+![Health Guidance]<img width="1903" height="799" alt="image" src="https://github.com/user-attachments/assets/df8fc646-c453-444e-b0bf-936791e05a04" />
+<img width="1908" height="791" alt="image" src="https://github.com/user-attachments/assets/4e9d3dee-6350-4acb-90eb-f9bc664cc037" />
+
 
 ---
 
@@ -56,9 +60,9 @@ Ensure the questions asked are within scope! Refer to the procedures list in RAT
 ### 💸 Budget-Aware Hospital Search
 > "3 lakh mein bypass surgery Delhi mein" — shows budget check + affordable hospitals
 
-![Budget Query](screenshots/ss5_budget.png)
 
-![Budget Results](screenshots/ss6_budget_hospitals.png)
+![Budget Results]<img width="1898" height="800" alt="image" src="https://github.com/user-attachments/assets/7845b637-06a0-4eea-9f93-8c4672c68c06" />
+
 
 ---
 
