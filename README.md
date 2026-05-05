@@ -3,6 +3,7 @@
 
 > **🔗 Live Demo: [https://healthcare-chatbot-0qw1.onrender.com](https://healthcare-chatbot-0qw1.onrender.com)**
 > *(First load may take 30–50 seconds on free tier)*
+> ENSURE YOU MENSION THE PROCEDURE NAME FROM THE SCOPE BEFORE LOOKING FOR THE BILL! (bypass surgery, knee replacement)
 
 An intelligent healthcare chatbot for India that helps users with procedure cost estimates, hospital recommendations, symptom-based specialist guidance, and clinical care pathways — all in Hinglish.
 
