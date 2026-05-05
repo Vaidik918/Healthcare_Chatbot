@@ -104,7 +104,7 @@ SPEC_REVIEW_FALLBACK = {
     "CTS": "CAR",   # Cardiac Surgery  → Cardiology (NONE: indore/lucknow/dehradun)
     "PUL": "MED",   # Pulmonology      → General Medicine (NONE: indore)
     "EDO": "MED",   # Endocrinology    → General Medicine (NONE: bhopal/dehradun)
-    "ONC": "SUR",   # Oncology         → Surgery (NONE: dehradun)
+    "ONC": "CAR",    # Oncology         → Surgery (NONE: dehradun)
     "NPH": "URO",   # Nephrology       → Urology (NONE: nagpur)
 }
 
