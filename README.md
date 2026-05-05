@@ -49,7 +49,7 @@ Ensure the questions asked are within scope! Refer to the procedures list in RAT
 ### 👨‍⚕️ Top Doctors by Specialty
 > Doctors extracted from patient reviews — ranked by mentions & sentiment score
 
-![Top Doctors](screenshots/ss4_doctors.png)
+![Top Doctors]<img width="1903" height="746" alt="image" src="https://github.com/user-attachments/assets/e8b5b15c-5e6d-4579-8b67-6902677117fb" />
 
 ---
 
