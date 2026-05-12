@@ -54,15 +54,25 @@ import json
 
 mcp = FastMCP("HealthcareCostEngine")
 
-# Fix for ngrok Invalid Host header error
+# Fix for Render/production Invalid Host header error
 import mcp.server.sse as _sse_module
 _original_init = _sse_module.SseServerTransport.__init__
 
 def _patched_init(self, endpoint, *args, **kwargs):
     _original_init(self, endpoint, *args, **kwargs)
     self._allow_all_hosts = True
+    try:
+        self._allowed_origins = None
+    except Exception:
+        pass
 
 _sse_module.SseServerTransport.__init__ = _patched_init
+
+# Patch host validation method directly
+try:
+    _sse_module.SseServerTransport._validate_host = lambda self, host: True
+except Exception:
+    pass
 
 
 # =============================================================================
@@ -1352,27 +1362,10 @@ def validate_inputs(
 if __name__ == "__main__":
     import os
     import uvicorn
-    from starlette.applications import Starlette
-    from starlette.middleware.base import BaseHTTPMiddleware
-    from starlette.routing import Mount
-
     port = int(os.environ.get("PORT", 8000))
     print(f"Healthcare MCP Server v2.0 starting on port {port}...")
     print("Transport: SSE")
     print(f"Listening on http://0.0.0.0:{port}")
     print("All patient data is SYNTHETIC - no real PHI used")
     print("-" * 60)
-
-    class FixHostMiddleware(BaseHTTPMiddleware):
-        async def dispatch(self, request, call_next):
-            request.scope["headers"] = [
-                (k, v) for k, v in request.scope["headers"]
-                if k.lower() != b"host"
-            ] + [(b"host", b"localhost")]
-            return await call_next(request)
-
-    sse_app = mcp.sse_app()
-    final_app = Starlette(routes=[Mount("/", app=sse_app)])
-    final_app.add_middleware(FixHostMiddleware)
-
-    uvicorn.run(final_app, host="0.0.0.0", port=port)
+    uvicorn.run(mcp.sse_app(), host="0.0.0.0", port=port)
