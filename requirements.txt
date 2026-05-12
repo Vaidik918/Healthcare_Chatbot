@@ -6,3 +6,4 @@ requests
 vaderSentiment
 python-dotenv
 pydantic
+mcp[cli]
