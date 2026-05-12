@@ -1357,4 +1357,6 @@ if __name__ == "__main__":
     print(f"Listening on http://0.0.0.0:{port}")
     print("All patient data is SYNTHETIC - no real PHI used")
     print("-" * 60)
-    mcp.run(transport="sse", host="0.0.0.0", port=port)
+    import uvicorn
+    from mcp.server.fastmcp import FastMCP
+    uvicorn.run(mcp.sse_app(), host="0.0.0.0", port=port)
