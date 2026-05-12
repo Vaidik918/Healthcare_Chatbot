@@ -1351,12 +1351,28 @@ def validate_inputs(
 
 if __name__ == "__main__":
     import os
+    import uvicorn
+    from starlette.applications import Starlette
+    from starlette.middleware.base import BaseHTTPMiddleware
+    from starlette.routing import Mount
+
     port = int(os.environ.get("PORT", 8000))
     print(f"Healthcare MCP Server v2.0 starting on port {port}...")
     print("Transport: SSE")
     print(f"Listening on http://0.0.0.0:{port}")
     print("All patient data is SYNTHETIC - no real PHI used")
     print("-" * 60)
-    import uvicorn
-    from mcp.server.fastmcp import FastMCP
-    uvicorn.run(mcp.sse_app(), host="0.0.0.0", port=port)
+
+    class FixHostMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            request.scope["headers"] = [
+                (k, v) for k, v in request.scope["headers"]
+                if k.lower() != b"host"
+            ] + [(b"host", b"localhost")]
+            return await call_next(request)
+
+    sse_app = mcp.sse_app()
+    final_app = Starlette(routes=[Mount("/", app=sse_app)])
+    final_app.add_middleware(FixHostMiddleware)
+
+    uvicorn.run(final_app, host="0.0.0.0", port=port)
