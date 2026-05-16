@@ -2,6 +2,7 @@
 
 
 > **🔗 Live Demo: [https://healthcare-chatbot-0qw1.onrender.com](https://healthcare-chatbot-0qw1.onrender.com)**
+> https://youtube.com/watch?v=mEzssIfsLo4&si=ZdNlcnrk6M0_UHK0
 > *(First load may take 30–50 seconds on free tier)*
 > ENSURE YOU MENTION THE PROCEDURE NAME FROM THE SCOPE BEFORE LOOKING FOR THE BILL! (bypass surgery, knee replacement)
 
